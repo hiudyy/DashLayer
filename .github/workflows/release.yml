@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.0)'
+        required: true
+        default: '0.1.0'
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-22.04]
+
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Ubuntu)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v${{ github.event.inputs.version || github.ref_name }}
+          releaseName: 'DashLayer v${{ github.event.inputs.version || github.ref_name }}'
+          releaseBody: |
+            ## DashLayer v${{ github.event.inputs.version || github.ref_name }}
+            
+            ### 📦 Downloads
+            
+            | Format | Description |
+            |--------|-------------|
+            | `.AppImage` | Universal Linux (recommended) - Just download, make executable, and run |
+            | `.deb` | Debian/Ubuntu based distributions |
+            | `.rpm` | Fedora/RHEL based distributions |
+            
+            ### 🚀 Installation
+            
+            **AppImage (Recommended):**
+            ```bash
+            chmod +x DashLayer_*.AppImage
+            ./DashLayer_*.AppImage
+            ```
+            
+            **Debian/Ubuntu:**
+            ```bash
+            sudo dpkg -i dashlayer_*.deb
+            ```
+            
+            **Fedora/RHEL:**
+            ```bash
+            sudo rpm -i dashlayer-*.rpm
+            ```
+            
+            ### ✨ What's New
+            - Initial release
+            - Widget editor with HTML, CSS, and JavaScript support
+            - Pre-built widget templates (Clock, System Monitor, Weather, etc.)
+            - Profile system for saving widget configurations
+            - Real-time system monitoring
+            - Transparent and always-on-top widgets
+            - Auto-start support
+          releaseDraft: false
+          prerelease: false

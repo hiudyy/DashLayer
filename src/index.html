@@ -371,6 +371,21 @@
                         </div>
                     </div>
                     
+                    <div class="settings-section">
+                        <h3>Updates</h3>
+                        <div class="settings-info">
+                            <span>Current version:</span>
+                            <span class="version-tag">v0.1.0</span>
+                        </div>
+                        <button class="btn btn-secondary" onclick="checkForUpdates(true)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+                            </svg>
+                            Check for Updates
+                        </button>
+                        <p class="settings-hint">DashLayer will automatically check for updates on startup</p>
+                    </div>
+                    
                     <div class="settings-section danger-zone">
                         <h3>Danger Zone</h3>
                         <button class="btn btn-danger" id="reset-data-btn">

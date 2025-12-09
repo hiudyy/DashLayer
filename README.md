@@ -20,8 +20,52 @@
 - 🖼️ **Transparent Windows** - Widgets with transparent background and no decorations
 - 🔄 **Hot Reload** - Preview your changes in real-time
 - 🚀 **Auto-start Support** - Launch widgets automatically when your system starts
+- 🔔 **Update Checker** - Get notified when new versions are available
 
-## 🚀 Installation
+## 📥 Download
+
+### Pre-built Releases (Recommended)
+
+Download the latest version from [GitHub Releases](https://github.com/hiudyy/DashLayer/releases/latest):
+
+| Format | Description | Best For |
+|--------|-------------|----------|
+| `.AppImage` | Universal Linux package | All distributions (recommended) |
+| `.deb` | Debian package | Ubuntu, Debian, Linux Mint, Pop!_OS |
+| `.rpm` | RPM package | Fedora, RHEL, CentOS, openSUSE |
+
+#### Quick Install
+
+**AppImage (Universal - Recommended):**
+```bash
+# Download the AppImage
+wget https://github.com/hiudyy/DashLayer/releases/latest/download/DashLayer_0.1.0_amd64.AppImage
+
+# Make it executable
+chmod +x DashLayer_*.AppImage
+
+# Run
+./DashLayer_*.AppImage
+```
+
+**Debian/Ubuntu:**
+```bash
+# Download and install
+wget https://github.com/hiudyy/DashLayer/releases/latest/download/dashlayer_0.1.0_amd64.deb
+sudo dpkg -i dashlayer_*.deb
+
+# If you have dependency issues
+sudo apt-get install -f
+```
+
+**Fedora/RHEL:**
+```bash
+# Download and install
+wget https://github.com/hiudyy/DashLayer/releases/latest/download/dashlayer-0.1.0-1.x86_64.rpm
+sudo rpm -i dashlayer-*.rpm
+```
+
+## 🚀 Build from Source
 
 ### Prerequisites
 

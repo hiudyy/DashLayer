@@ -3,6 +3,10 @@
 
 const { invoke } = window.__TAURI__.core;
 
+// App version
+const APP_VERSION = '0.1.0';
+const GITHUB_REPO = 'hiudyy/DashLayer';
+
 // App State
 const state = {
     widgets: [],
@@ -34,6 +38,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (e) {
         console.log('No autostart widgets');
     }
+    
+    // Check for updates (non-blocking)
+    checkForUpdates();
 });
 
 // Load Data from Backend
@@ -1174,3 +1181,122 @@ async function importTemplate(templateName) {
 
 // Make template functions global
 window.importTemplate = importTemplate;
+
+// ============================================
+// UPDATE CHECKER
+// ============================================
+
+async function checkForUpdates(showNoUpdate = false) {
+    try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
+        
+        if (!response.ok) {
+            if (showNoUpdate) {
+                showToast('Could not check for updates', 'error');
+            }
+            return;
+        }
+        
+        const release = await response.json();
+        const latestVersion = release.tag_name.replace('v', '');
+        
+        if (isNewerVersion(latestVersion, APP_VERSION)) {
+            showUpdateModal(latestVersion, release.html_url, release.body);
+        } else if (showNoUpdate) {
+            showToast('You are using the latest version!', 'success');
+        }
+    } catch (error) {
+        console.error('Error checking for updates:', error);
+        if (showNoUpdate) {
+            showToast('Could not check for updates', 'error');
+        }
+    }
+}
+
+function isNewerVersion(latest, current) {
+    const latestParts = latest.split('.').map(Number);
+    const currentParts = current.split('.').map(Number);
+    
+    for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
+        const latestPart = latestParts[i] || 0;
+        const currentPart = currentParts[i] || 0;
+        
+        if (latestPart > currentPart) return true;
+        if (latestPart < currentPart) return false;
+    }
+    
+    return false;
+}
+
+function showUpdateModal(version, url, releaseNotes) {
+    const modal = document.getElementById('modal-overlay');
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+    const footer = document.getElementById('modal-footer');
+    
+    title.textContent = '🎉 Update Available!';
+    
+    body.innerHTML = `
+        <div class="update-modal">
+            <div class="update-header">
+                <div class="update-icon">🚀</div>
+                <div class="update-info">
+                    <h3>DashLayer v${version}</h3>
+                    <p>A new version is available!</p>
+                </div>
+            </div>
+            <div class="update-current">
+                <span>Current version:</span>
+                <span class="version-badge">v${APP_VERSION}</span>
+            </div>
+            <div class="update-notes">
+                <h4>What's New:</h4>
+                <div class="release-notes">${formatReleaseNotes(releaseNotes)}</div>
+            </div>
+        </div>
+    `;
+    
+    footer.innerHTML = `
+        <button class="btn btn-ghost" onclick="closeModal()">Later</button>
+        <button class="btn btn-primary" onclick="openReleasePage('${url}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download Update
+        </button>
+    `;
+    
+    modal.classList.add('active');
+}
+
+function formatReleaseNotes(notes) {
+    if (!notes) return '<p>No release notes available.</p>';
+    
+    // Simple markdown to HTML conversion
+    return notes
+        .replace(/### (.*)/g, '<h5>$1</h5>')
+        .replace(/## (.*)/g, '<h4>$1</h4>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code>$1</code>')
+        .replace(/- (.*)/g, '<li>$1</li>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+}
+
+function openReleasePage(url) {
+    // Use Tauri opener plugin to open URL in default browser
+    if (window.__TAURI__ && window.__TAURI__.opener) {
+        window.__TAURI__.opener.openUrl(url);
+    } else {
+        // Fallback for development
+        window.open(url, '_blank');
+    }
+    closeModal();
+}
+
+// Make update functions global
+window.checkForUpdates = checkForUpdates;
+window.openReleasePage = openReleasePage;
