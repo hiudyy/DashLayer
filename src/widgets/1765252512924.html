@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" style="margin:0;padding:0;height:100%;overflow:hidden;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock (Imported)</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        #widget-root {
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+        }
+        
+        .clock-widget {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.time {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.date {
+    font-size: 14px;
+    opacity: 0.9;
+    font-weight: 300;
+}
+    </style>
+</head>
+<body>
+    <div id="widget-root"><div class="clock-widget">
+    <div class="time" id="time">00:00:00</div>
+    <div class="date" id="date">Monday, January 1</div>
+</div></div>
+    <script>
+        try { function updateClock() {
+    const now = new Date();
+    document.getElementById('time').textContent = 
+        now.toLocaleTimeString('en-US', { hour12: false });
+    document.getElementById('date').textContent = 
+        now.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+}
+updateClock();
+setInterval(updateClock, 1000); } catch(e) { console.error('Widget error:', e); }
+    </script>
+</body>
+</html>

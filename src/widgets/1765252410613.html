@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" style="margin:0;padding:0;height:100%;overflow:hidden;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Widget (Imported)</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        #widget-root {
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+        }
+        
+        .weather-widget {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    position: relative;
+}
+
+.weather-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.weather-location {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.weather-refresh {
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.weather-refresh:hover {
+    opacity: 1;
+}
+
+.weather-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.weather-icon {
+    font-size: 48px;
+    margin-right: 15px;
+}
+
+.weather-temp {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.weather-desc {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-transform: capitalize;
+}
+
+.weather-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.weather-settings {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.settings-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.settings-panel {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 8px;
+    padding: 10px;
+    min-width: 200px;
+    z-index: 1000;
+}
+
+.api-input, .city-input {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 12px;
+}
+
+.api-input::placeholder, .city-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.save-btn {
+    width: 100%;
+    padding: 6px;
+    background: #00b894;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.save-btn:hover {
+    background: #00a885;
+}
+    </style>
+</head>
+<body>
+    <div id="widget-root"><div class="weather-widget">
+    <div class="weather-header">
+        <div class="weather-location" id="location">Loading...</div>
+        <div class="weather-refresh" onclick="refreshWeather()">🔄</div>
+    </div>
+    <div class="weather-main">
+        <div class="weather-icon" id="weather-icon">☀️</div>
+        <div class="weather-temp" id="temperature">--°</div>
+    </div>
+    <div class="weather-details">
+        <div class="weather-desc" id="description">Loading...</div>
+        <div class="weather-info">
+            <span id="humidity">Humidity: --%</span>
+            <span id="wind">Wind: -- km/h</span>
+        </div>
+    </div>
+    <div class="weather-settings">
+        <button onclick="toggleSettings()" class="settings-btn">⚙️</button>
+        <div id="settings-panel" class="settings-panel" style="display: none;">
+            <input type="text" id="city-input" placeholder="City name" class="city-input">
+            <button onclick="saveSettings()" class="save-btn">Save</button>
+        </div>
+    </div>
+</div></div>
+    <script>
+        try { // Weather Widget with Open-Meteo API (no API key required)
+let weatherCity = localStorage.getItem('weather-city') || 'London';
+let weatherInterval;
+
+// Weather icon mapping for Open-Meteo weather codes
+const weatherIcons = {
+    0: '☀️',  // Clear sky
+    1: '🌤️',  // Mainly clear
+    2: '⛅',  // Partly cloudy
+    3: '☁️',  // Overcast
+    45: '🌫️', // Fog
+    48: '🌫️', // Depositing rime fog
+    51: '🌦️', // Drizzle: Light
+    53: '🌦️', // Drizzle: Moderate
+    55: '🌦️', // Drizzle: Dense
+    56: '🌧️', // Freezing Drizzle: Light
+    57: '🌧️', // Freezing Drizzle: Dense
+    61: '🌧️', // Rain: Slight
+    63: '🌧️', // Rain: Moderate
+    65: '🌧️', // Rain: Heavy
+    66: '🌨️', // Freezing Rain: Light
+    67: '🌨️', // Freezing Rain: Heavy
+    71: '❄️', // Snow fall: Slight
+    73: '❄️', // Snow fall: Moderate
+    75: '❄️', // Snow fall: Heavy
+    77: '🌨️', // Snow grains
+    80: '🌦️', // Showers: Slight
+    81: '🌦️', // Showers: Moderate
+    82: '🌦️', // Showers: Violent
+    85: '⛈️', // Thunderstorm: Slight
+    86: '⛈️', // Thunderstorm: Heavy
+    95: '⛈️', // Thunderstorm: Slight or moderate
+    96: '⛈️', // Thunderstorm with slight hail
+    99: '⛈️'  // Thunderstorm with heavy hail
+};
+
+// Weather description mapping
+const weatherDescriptions = {
+    0: 'Clear sky',
+    1: 'Mainly clear',
+    2: 'Partly cloudy',
+    3: 'Overcast',
+    45: 'Fog',
+    48: 'Depositing rime fog',
+    51: 'Light drizzle',
+    53: 'Moderate drizzle',
+    55: 'Dense drizzle',
+    56: 'Light freezing drizzle',
+    57: 'Dense freezing drizzle',
+    61: 'Light rain',
+    63: 'Moderate rain',
+    65: 'Heavy rain',
+    66: 'Light freezing rain',
+    67: 'Heavy freezing rain',
+    71: 'Light snow',
+    73: 'Moderate snow',
+    75: 'Heavy snow',
+    77: 'Snow grains',
+    80: 'Light showers',
+    81: 'Moderate showers',
+    82: 'Violent showers',
+    85: 'Slight thunderstorm',
+    86: 'Heavy thunderstorm',
+    95: 'Thunderstorm',
+    96: 'Thunderstorm with hail',
+    99: 'Thunderstorm with heavy hail'
+};
+
+async function fetchWeather() {
+    try {
+        // First, get coordinates for the city using Open-Meteo geocoding API
+        const geoResponse = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(weatherCity)}&count=1&language=en`
+        );
+        
+        if (!geoResponse.ok) {
+            throw new Error('Geocoding failed');
+        }
+        
+        const geoData = await geoResponse.json();
+        
+        if (!geoData.results || geoData.results.length === 0) {
+            showWeatherError('City not found');
+            return;
+        }
+        
+        const { latitude, longitude, name, country } = geoData.results[0];
+        
+        // Then fetch weather data using coordinates
+        const weatherResponse = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m,windspeed_10m`
+        );
+        
+        if (!weatherResponse.ok) {
+            throw new Error('Weather fetch failed');
+        }
+        
+        const weatherData = await weatherResponse.json();
+        updateWeatherDisplay(weatherData, name, country);
+    } catch (error) {
+        console.error('Weather fetch error:', error);
+        showWeatherError('Failed to fetch weather');
+    }
+}
+
+function updateWeatherDisplay(data, cityName, country) {
+    const current = data.current_weather;
+    const hourly = data.hourly;
+    
+    // Get current hour index for humidity and wind
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    document.getElementById('location').textContent = `${cityName}, ${country}`;
+    document.getElementById('temperature').textContent = `${Math.round(current.temperature)}°C`;
+    document.getElementById('description').textContent = weatherDescriptions[current.weathercode] || 'Unknown';
+    document.getElementById('humidity').textContent = `Humidity: ${hourly.relativehumidity_2m[currentHour]}%`;
+    document.getElementById('wind').textContent = `Wind: ${Math.round(hourly.windspeed_10m[currentHour])} km/h`;
+    
+    const iconCode = current.weathercode;
+    document.getElementById('weather-icon').textContent = weatherIcons[iconCode] || '🌤️';
+}
+
+function showWeatherError(message) {
+    document.getElementById('location').textContent = 'Error';
+    document.getElementById('temperature').textContent = '--°';
+    document.getElementById('description').textContent = message;
+    document.getElementById('humidity').textContent = 'Humidity: --%';
+    document.getElementById('wind').textContent = 'Wind: -- km/h';
+    document.getElementById('weather-icon').textContent = '⚠️';
+}
+
+function refreshWeather() {
+    fetchWeather();
+}
+
+function toggleSettings() {
+    const panel = document.getElementById('settings-panel');
+    const isVisible = panel.style.display !== 'none';
+    panel.style.display = isVisible ? 'none' : 'block';
+    
+    if (!isVisible) {
+        document.getElementById('city-input').value = weatherCity;
+    }
+}
+
+function saveSettings() {
+    const newCity = document.getElementById('city-input').value.trim();
+    
+    if (newCity) {
+        weatherCity = newCity;
+        localStorage.setItem('weather-city', newCity);
+    }
+    
+    toggleSettings();
+    refreshWeather();
+}
+
+// Initialize weather widget
+function initWeather() {
+    fetchWeather();
+    // Refresh every 30 minutes
+    weatherInterval = setInterval(fetchWeather, 30 * 60 * 1000);
+}
+
+// Start the weather widget
+initWeather(); } catch(e) { console.error('Widget error:', e); }
+    </script>
+</body>
+</html>

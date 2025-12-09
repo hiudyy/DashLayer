@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashLayer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                        <path d="M8 12h16M8 16h12M8 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>DashLayer</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="widgets">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    <span>Widgets</span>
+                </button>
+                <button class="nav-item" data-tab="templates">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <line x1="9" y1="9" x2="15" y2="9"/>
+                        <line x1="9" y1="13" x2="15" y2="13"/>
+                        <line x1="9" y1="17" x2="13" y2="17"/>
+                    </svg>
+                    <span>Templates</span>
+                </button>
+                <button class="nav-item" data-tab="editor">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    <span>Editor</span>
+                </button>
+                <button class="nav-item" data-tab="profiles">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Profiles</span>
+                </button>
+                <button class="nav-item" data-tab="dependencies">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    <span>Dependencies</span>
+                </button>
+                <button class="nav-item" data-tab="settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="nav-item" data-tab="about">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    <span>About</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Widgets Tab -->
+            <section class="tab-panel active" id="widgets-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h1>Widgets</h1>
+                        <p>Manage your custom widgets</p>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn btn-primary" id="new-widget-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            New Widget
+                        </button>
+                    </div>
+                </div>
+                <div class="widgets-container" id="widgets-container">
+                    <div class="empty-state" id="empty-widgets">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        <h3>No widgets created</h3>
+                        <p>Click "New Widget" to get started</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Templates Tab -->
+            <section class="tab-panel" id="templates-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h1>Widget Templates</h1>
+                        <p>Import pre-made widgets to get started quickly</p>
+                    </div>
+                </div>
+                <div class="templates-container" id="templates-container">
+                    <div class="loading-templates" id="loading-templates">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                        </svg>
+                        <p>Loading templates...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Editor Tab -->
+            <section class="tab-panel" id="editor-panel">
+                <div class="editor-layout">
+                    <div class="editor-main">
+                        <div class="editor-header">
+                            <div class="editor-tabs">
+                                <button class="editor-tab active" data-lang="html">
+                                    <span class="tab-dot html"></span>
+                                    HTML
+                                </button>
+                                <button class="editor-tab" data-lang="css">
+                                    <span class="tab-dot css"></span>
+                                    CSS
+                                </button>
+                                <button class="editor-tab" data-lang="js">
+                                    <span class="tab-dot js"></span>
+                                    JavaScript
+                                </button>
+                            </div>
+                            <div class="editor-actions">
+                                <button class="btn btn-ghost" id="format-btn" title="Format code">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="21" y1="10" x2="3" y2="10"/>
+                                        <line x1="21" y1="6" x2="3" y2="6"/>
+                                        <line x1="21" y1="14" x2="3" y2="14"/>
+                                        <line x1="21" y1="18" x2="3" y2="18"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-container">
+                            <div class="code-panel active" id="html-panel">
+                                <textarea id="html-editor"></textarea>
+                            </div>
+                            <div class="code-panel" id="css-panel">
+                                <textarea id="css-editor"></textarea>
+                            </div>
+                            <div class="code-panel" id="js-panel">
+                                <textarea id="js-editor"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="editor-sidebar">
+                        <div class="sidebar-section">
+                            <h3>Properties</h3>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" id="widget-name" placeholder="My Widget" class="input">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Width</label>
+                                    <div class="input-with-unit">
+                                        <input type="number" id="widget-width" value="300" min="100" class="input">
+                                        <span>px</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Height</label>
+                                    <div class="input-with-unit">
+                                        <input type="number" id="widget-height" value="200" min="50" class="input">
+                                        <span>px</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Opacity</label>
+                                <div class="slider-container">
+                                    <input type="range" id="widget-opacity" min="10" max="100" value="100" class="slider">
+                                    <span class="slider-value" id="opacity-value">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sidebar-section">
+                            <h3>Options</h3>
+                            <label class="toggle-label">
+                                <span>Always on top</span>
+                                <input type="checkbox" id="widget-always-top" checked>
+                                <span class="toggle"></span>
+                            </label>
+                            <label class="toggle-label">
+                                <span>Transparent background</span>
+                                <input type="checkbox" id="widget-transparent" checked>
+                                <span class="toggle"></span>
+                            </label>
+                        </div>
+                        <div class="sidebar-actions">
+                            <button class="btn btn-secondary btn-block" id="preview-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                Preview
+                            </button>
+                            <button class="btn btn-primary btn-block" id="save-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Save Widget
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profiles Tab -->
+            <section class="tab-panel" id="profiles-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h1>Profiles</h1>
+                        <p>Save and load widget configurations</p>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn btn-secondary" id="import-profile-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Import
+                        </button>
+                        <button class="btn btn-primary" id="new-profile-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            New Profile
+                        </button>
+                    </div>
+                </div>
+                <div class="profiles-container" id="profiles-container">
+                    <div class="empty-state" id="empty-profiles">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <h3>No saved profiles</h3>
+                        <p>Create a profile to save your current configuration</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dependencies Tab -->
+            <section class="tab-panel" id="dependencies-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h1>Dependencies</h1>
+                        <p>Manage external libraries for offline use</p>
+                    </div>
+                </div>
+                <div class="dependencies-form">
+                    <div class="form-group">
+                        <label>Library URL</label>
+                        <div class="input-group">
+                            <input type="text" id="dep-url" placeholder="https://cdn.example.com/library.js" class="input">
+                            <button class="btn btn-primary" id="add-dep-btn">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="dependencies-list" id="dependencies-list">
+                    <div class="empty-state" id="empty-deps">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        </svg>
+                        <h3>No dependencies</h3>
+                        <p>Add library URLs for offline cache</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Tab -->
+            <section class="tab-panel" id="settings-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <h1>Settings</h1>
+                        <p>Configure DashLayer behavior</p>
+                    </div>
+                </div>
+                <div class="settings-container">
+                    <div class="settings-section">
+                        <h3>Startup</h3>
+                        <label class="toggle-label">
+                            <span>Start with system</span>
+                            <input type="checkbox" id="autostart-toggle">
+                            <span class="toggle"></span>
+                        </label>
+                        <p class="settings-hint">DashLayer will start automatically when you turn on your computer</p>
+                        
+                        <label class="toggle-label">
+                            <span>Open widgets on startup</span>
+                            <input type="checkbox" id="autostart-widgets-toggle" checked>
+                            <span class="toggle"></span>
+                        </label>
+                        <p class="settings-hint">Widgets marked as "Auto-start" will be opened automatically</p>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Appearance</h3>
+                        <div class="form-group">
+                            <label>Theme</label>
+                            <select class="input" id="theme-select">
+                                <option value="dark">Dark</option>
+                                <option value="light" disabled>Light (coming soon)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Data</h3>
+                        <div class="settings-actions">
+                            <button class="btn btn-secondary" id="export-data-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Export Data
+                            </button>
+                            <button class="btn btn-secondary" id="import-data-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Import Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section danger-zone">
+                        <h3>Danger Zone</h3>
+                        <button class="btn btn-danger" id="reset-data-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            Reset All Data
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Tab -->
+            <section class="tab-panel" id="about-panel">
+                <div class="about-container">
+                    <div class="about-header">
+                        <div class="about-logo">
+                            <svg width="80" height="80" viewBox="0 0 32 32" fill="none">
+                                <rect width="32" height="32" rx="8" fill="url(#gradient2)"/>
+                                <path d="M8 12h16M8 16h12M8 20h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                <defs>
+                                    <linearGradient id="gradient2" x1="0" y1="0" x2="32" y2="32">
+                                        <stop stop-color="#6366f1"/>
+                                        <stop offset="1" stop-color="#8b5cf6"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h1>DashLayer</h1>
+                        <p class="version">Version 0.1.0</p>
+                        <p class="tagline">Customizable desktop widgets for Linux</p>
+                    </div>
+                    
+                    <div class="about-section">
+                        <h2>Developer</h2>
+                        <div class="developer-card">
+                            <img src="https://github.com/hiudyy.png" alt="hiudyy" class="avatar" onerror="this.style.display='none'">
+                            <div class="developer-info">
+                                <h3>hiudyy</h3>
+                                <p>Full Stack Developer</p>
+                                <a href="https://github.com/hiudyy" target="_blank" class="github-link">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                    </svg>
+                                    @hiudyy
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-section">
+                        <h2>Technologies</h2>
+                        <div class="tech-grid">
+                            <div class="tech-item">
+                                <span class="tech-icon">🦀</span>
+                                <span>Rust</span>
+                            </div>
+                            <div class="tech-item">
+                                <span class="tech-icon">⚡</span>
+                                <span>Tauri</span>
+                            </div>
+                            <div class="tech-item">
+                                <span class="tech-icon">🌐</span>
+                                <span>WebKit</span>
+                            </div>
+                            <div class="tech-item">
+                                <span class="tech-icon">📝</span>
+                                <span>CodeMirror</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-footer">
+                        <p>Open Source • MIT License</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer" id="modal-footer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Quick Notes",
+  "description": "A simple notepad for quick reminders",
+  "category": "Productivity",
+  "html": "<div class=\"notes-widget\">\n    <div class=\"notes-header\">\n        <span>📝 Quick Notes</span>\n        <button onclick=\"clearNotes()\" class=\"clear-btn\">Clear</button>\n    </div>\n    <textarea id=\"notes-text\" placeholder=\"Type your notes here...\" autofocus></textarea>\n</div>",
+  "css": ".notes-widget {\n    background: #fffacd;\n    border: 2px solid #daa520;\n    border-radius: 8px;\n    padding: 10px;\n    font-family: 'Comic Sans MS', cursive, sans-serif;\n    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);\n}\n\n.notes-header {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    margin-bottom: 8px;\n    font-weight: bold;\n    color: #8b4513;\n}\n\n.clear-btn {\n    background: #ff6b6b;\n    color: white;\n    border: none;\n    border-radius: 4px;\n    padding: 2px 8px;\n    font-size: 11px;\n    cursor: pointer;\n}\n\n.clear-btn:hover {\n    background: #ff5252;\n}\n\n#notes-text {\n    width: 100%;\n    height: 150px;\n    border: 1px solid #ddd;\n    border-radius: 4px;\n    padding: 8px;\n    font-family: inherit;\n    font-size: 13px;\n    resize: none;\n    background: rgba(255, 255, 255, 0.8);\n}\n\n#notes-text:focus {\n    outline: none;\n    border-color: #daa520;\n}",
+  "js": "// Load saved notes on startup\nconst notesText = document.getElementById('notes-text');\nif (notesText) {\n    const savedNotes = localStorage.getItem('dashlayer-notes');\n    if (savedNotes) {\n        notesText.value = savedNotes;\n    }\n    \n    // Auto-save notes\n    notesText.addEventListener('input', () => {\n        localStorage.setItem('dashlayer-notes', notesText.value);\n    });\n}\n\nfunction clearNotes() {\n    // Note: Widgets run in separate Tauri windows, so we use native confirm()\n    if (confirm('Clear all notes?')) {\n        notesText.value = '';\n        localStorage.removeItem('dashlayer-notes');\n        notesText.focus();\n    }\n}",
+  "width": 300,
+  "height": 200,
+  "opacity": 100,
+  "alwaysOnTop": true,
+  "transparent": true,
+  "x": 700,
+  "y": 100,
+  "autoStart": false
+}

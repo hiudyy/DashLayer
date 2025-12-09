@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en" style="margin:0;padding:0;height:100%;overflow:hidden;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer (Imported)</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        #widget-root {
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+        }
+        
+        .countdown-widget {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 300px;
+    position: relative;
+}
+
+.countdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.reset-btn {
+    background: rgba(255, 255, 255, 0.5);
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.reset-btn:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.countdown-display {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.time-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.time-value {
+    font-size: 24px;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 50px;
+    margin-bottom: 4px;
+}
+
+.time-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}
+
+.countdown-inputs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+.countdown-inputs input {
+    width: 60px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    font-size: 14px;
+}
+
+.countdown-inputs input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.countdown-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+.countdown-controls button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#start-btn {
+    background: #4ecdc4;
+    color: white;
+}
+
+#start-btn:hover:not(:disabled) {
+    background: #45b7b8;
+}
+
+#pause-btn {
+    background: #ff6b6b;
+    color: white;
+}
+
+#pause-btn:hover:not(:disabled) {
+    background: #ff5252;
+}
+
+.countdown-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#event-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+    text-align: center;
+}
+
+#event-input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Alert Modal Styles */
+.alert-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    z-index: 1000;
+}
+
+.alert-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.alert-modal-content {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 280px;
+    max-width: 90%;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: white;
+}
+
+.alert-modal-header {
+    margin-bottom: 15px;
+}
+
+.alert-modal-header svg {
+    opacity: 0.8;
+}
+
+.alert-modal-body h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.alert-modal-body p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.alert-modal-footer {
+    margin-top: 20px;
+}
+
+.alert-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.alert-btn-primary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #4ecdc4;
+}
+
+.alert-btn-primary:hover {
+    background: white;
+}
+    </style>
+</head>
+<body>
+    <div id="widget-root"><div class="countdown-widget">
+    <div class="countdown-header">
+        <span>⏰ Countdown Timer</span>
+        <button onclick="resetTimer()" class="reset-btn">Reset</button>
+    </div>
+    <div class="countdown-display" id="countdown-display">
+        <div class="time-unit">
+            <div class="time-value" id="days">00</div>
+            <div class="time-label">Days</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value" id="hours">00</div>
+            <div class="time-label">Hours</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value" id="minutes">00</div>
+            <div class="time-label">Minutes</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value" id="seconds">00</div>
+            <div class="time-label">Seconds</div>
+        </div>
+    </div>
+    <div class="countdown-inputs">
+        <input type="number" id="input-days" placeholder="Days" min="0" max="365">
+        <input type="number" id="input-hours" placeholder="Hours" min="0" max="23">
+        <input type="number" id="input-minutes" placeholder="Minutes" min="0" max="59">
+        <input type="number" id="input-seconds" placeholder="Seconds" min="0" max="59">
+    </div>
+    <div class="countdown-controls">
+        <button onclick="startTimer()" id="start-btn">Start</button>
+        <button onclick="pauseTimer()" id="pause-btn" disabled>Pause</button>
+    </div>
+    <div class="countdown-event" id="event-name">
+        <input type="text" id="event-input" placeholder="Event name (optional)">
+    </div>
+    <!-- Inline Alert Modal -->
+    <div id="alert-modal" class="alert-modal" style="display: none;">
+        <div class="alert-modal-overlay" onclick="closeAlertModal()"></div>
+        <div class="alert-modal-content">
+            <div class="alert-modal-header">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ecdc4" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
+            <div class="alert-modal-body">
+                <h3 id="alert-title">Timer Complete!</h3>
+                <p id="alert-message">Your countdown has finished.</p>
+            </div>
+            <div class="alert-modal-footer">
+                <button onclick="closeAlertModal()" class="alert-btn alert-btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+    <script>
+        try { // Countdown Timer Widget
+let countdownInterval;
+let totalSeconds = 0;
+let isPaused = false;
+
+function updateCountdownDisplay() {
+    const days = Math.floor(totalSeconds / (24 * 60 * 60));
+    const hours = Math.floor((totalSeconds % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+    const seconds = totalSeconds % 60;
+    
+    document.getElementById('days').textContent = String(days).padStart(2, '0');
+    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+}
+
+function startTimer() {
+    if (isPaused) {
+        // Resume from pause
+        isPaused = false;
+    } else {
+        // Get input values
+        const days = parseInt(document.getElementById('input-days').value) || 0;
+        const hours = parseInt(document.getElementById('input-hours').value) || 0;
+        const minutes = parseInt(document.getElementById('input-minutes').value) || 0;
+        const seconds = parseInt(document.getElementById('input-seconds').value) || 0;
+        
+        totalSeconds = days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds;
+        
+        if (totalSeconds === 0) {
+            showAlert('Please set a valid time', 'Invalid Input');
+            return;
+        }
+    }
+    
+    // Update UI
+    document.getElementById('start-btn').disabled = true;
+    document.getElementById('pause-btn').disabled = false;
+    
+    // Disable inputs
+    document.querySelectorAll('.countdown-inputs input').forEach(input => {
+        input.disabled = true;
+    });
+    
+    // Start countdown
+    countdownInterval = setInterval(() => {
+        if (totalSeconds > 0) {
+            totalSeconds--;
+            updateCountdownDisplay();
+        } else {
+            // Timer finished
+            clearInterval(countdownInterval);
+            timerComplete();
+        }
+    }, 1000);
+}
+
+function pauseTimer() {
+    clearInterval(countdownInterval);
+    isPaused = true;
+    
+    document.getElementById('start-btn').disabled = false;
+    document.getElementById('pause-btn').disabled = true;
+    document.getElementById('start-btn').textContent = 'Resume';
+}
+
+function resetTimer() {
+    clearInterval(countdownInterval);
+    totalSeconds = 0;
+    isPaused = false;
+    
+    // Reset display
+    updateCountdownDisplay();
+    
+    // Reset UI
+    document.getElementById('start-btn').disabled = false;
+    document.getElementById('pause-btn').disabled = true;
+    document.getElementById('start-btn').textContent = 'Start';
+    
+    // Enable inputs
+    document.querySelectorAll('.countdown-inputs input').forEach(input => {
+        input.disabled = false;
+        input.value = '';
+    });
+    
+    document.getElementById('event-input').value = '';
+}
+
+function timerComplete() {
+    const eventName = document.getElementById('event-input').value || 'Timer';
+    
+    // Show completion modal
+    document.getElementById('alert-title').textContent = `${eventName} Complete!`;
+    document.getElementById('alert-message').textContent = 'Your countdown has finished.';
+    document.getElementById('alert-modal').style.display = 'flex';
+    
+    // Change widget appearance
+    const widget = document.querySelector('.countdown-widget');
+    widget.style.background = 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)';
+    widget.style.animation = 'pulse 1s ease-in-out 3';
+    
+    // Reset after showing completion
+    setTimeout(() => {
+        widget.style.background = 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)';
+        widget.style.animation = '';
+        resetTimer();
+    }, 3000);
+}
+
+function showAlert(message, title = 'Notification') {
+    document.getElementById('alert-title').textContent = title;
+    document.getElementById('alert-message').textContent = message;
+    document.getElementById('alert-modal').style.display = 'flex';
+}
+
+function closeAlertModal() {
+    document.getElementById('alert-modal').style.display = 'none';
+}
+
+// Add pulse animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+`;
+document.head.appendChild(style);
+
+// Handle escape key for alert
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('alert-modal').style.display !== 'none') {
+        closeAlertModal();
+    }
+});
+
+// Initialize display
+updateCountdownDisplay(); } catch(e) { console.error('Widget error:', e); }
+    </script>
+</body>
+</html>
